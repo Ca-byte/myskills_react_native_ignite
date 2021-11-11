@@ -11,25 +11,42 @@ import {
 import { Button } from '../components/Button';
 import { SkillCard } from '../components/SkillCard';
 
+interface SkillData {
+    id: string;
+    name: string;
+
+}
+
 
 export function Home(){
     const [newSkill, setNewSkill ]=useState('');
-    const [mySkills, setMySkills] = useState([]);
+    const [mySkills, setMySkills] = useState<SkillData[]>([]);
     const [greetings, setGreetings] = useState('');
 
 
     const handleMyNewSkills = () => {
-        setMySkills(prevState => [...prevState, newSkill])
+        const data = {
+            id: String(new Date().getTime()),
+            name: newSkill
+        }
+        setMySkills(prevState => [...prevState, data])
+
+    }
+
+    const handleRemoveSkill = (id: string) => {
+        setMySkills(prevState => prevState.filter(
+            skill => skill.id !== id
+        ))
     }
 
     useEffect(() => {
-        const currentHour = new Date().getTime();
-
-        if( currentHour < 12) {
+        const currentHour = new Date().getUTCHours();
+        
+        if ( currentHour < 12) {
             setGreetings('Good Morning')
         } else if (currentHour >= 12 && currentHour < 18){
             setGreetings('Good Afternoon');
-        }else {
+        } else {
             setGreetings('Good Evening')
         }
     }, [])
@@ -54,29 +71,27 @@ export function Home(){
          onChangeText={setNewSkill}
          />
 
-        <Button onPress={handleMyNewSkills}/>
+        <Button 
+        onPress={handleMyNewSkills}
+        title='Add'
+    
+        />
          
-         <Text style={[styles.title, {marginVertical: 40}]}>
-          My Skills
-         </Text>
+        <Text style={[styles.title, {marginVertical: 40}]}>
+        My Skills
+        </Text>
 
 
-         <FlatList 
+        <FlatList 
             data={mySkills}
-            keyExtractor={item => item}
+            keyExtractor={item => item.id}
             renderItem={({item}) =>(
-              <SkillCard skill={item} />
-           )}
-          />
-
-
-
-      
-            
-               
-            
-        
-       
+            <SkillCard 
+            skill={item.name}
+            onPress={()=> handleRemoveSkill(item.id)}
+            />
+        )}
+        />
 
     </View>
   );
